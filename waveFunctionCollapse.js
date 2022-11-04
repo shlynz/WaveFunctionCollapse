@@ -25,12 +25,10 @@
  * @returns {Array<Cell>} Unobserved wave
  */
 function init(width, height, startingValue) {
-    const wave = new Array(width * height).fill(0);
-    return wave.map(_ => {
-        return {
-            ...startingValue
-        };
-    })
+    const waveTemplate = new Array(width * height).fill(0);
+    const tiles = defineNeighbours(startingValue);
+    const wave = waveTemplate.map(_ => tiles.slice());
+    return wave;
 }
 
 /**
@@ -42,7 +40,7 @@ function init(width, height, startingValue) {
 function getLowestEntropy(wave) {
     const waveCopy = wave.slice().sort((a, b) => a.entropy - b.entropy);
     const lowestEntropy = waveCopy[0].entropy
-    const lowestEntropyTiles = waveCopy.filter(cell => cell.entropy === lowestEntropy);
+    const lowestEntropyCell = waveCopy.filter(cell => cell.entropy === lowestEntropy);
     return waveCopy[Math.floor(Math.random()*waveCopy.length)];
 }
 
@@ -77,4 +75,29 @@ function execute(width, height, startingValue) {
  */
 function isFullyCollapsed(wave) {
     return wave.filter(cell => !cell.isCollapsed).length === 0;
+}
+
+/**
+ * Checks the valid neighbours of each tile based on the sockets
+ * @param {Array<Tile>} tiles 
+ * @returns {Array<Tile>} tiles
+ */
+function defineNeighbours(tiles) {
+    tiles.forEach(tile => {
+        tiles.forEach(potentialNeighbourTile => {
+            if(tile.sockets.up === potentialNeighbourTile.sockets.down) {
+                tile.valid_neighbours.up.push(potentialNeighbourTile);
+            }
+            if(tile.sockets.right === potentialNeighbourTile.sockets.left) {
+                tile.valid_neighbours.right.push(potentialNeighbourTile);
+            }
+            if(tile.sockets.down === potentialNeighbourTile.sockets.up) {
+                tile.valid_neighbours.down.push(potentialNeighbourTile);
+            }
+            if(tile.sockets.left === potentialNeighbourTile.sockets.right) {
+                tile.valid_neighbours.left.push(potentialNeighbourTile);
+            }
+        })
+    })
+    return tiles;
 }
