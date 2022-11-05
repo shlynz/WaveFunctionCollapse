@@ -53,6 +53,17 @@ function collapse(cell) {
 }
 
 /**
+ * Updates all specified cells in regard of the newly observed cell
+ * @param {number} indexToUpdate Index to the 
+ */
+function propagate(wave, indexToUpdate){
+    const stack = [indexToUpdate];
+    while(stack.length > 0) {
+        // TODO
+    }
+}
+
+/**
  * Starts the WFC
  * @param {number} width Width of the wave
  * @param {number} height Height of the wave
