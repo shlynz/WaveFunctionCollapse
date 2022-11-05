@@ -74,7 +74,7 @@ function execute(width, height, startingValue) {
  * @returns boolean is wave collapsed fully?
  */
 function isFullyCollapsed(wave) {
-    return wave.filter(cell => !cell.isCollapsed).length === 0;
+    return wave.filter(cell => cell.length === 1).length === wave.length;
 }
 
 /**
