@@ -47,8 +47,9 @@ function getLowestEntropy(wave) {
 /**
  * Chooses one of the possible Tiles for this cell
  * @param {Cell} cell The cell to collapse
+ * @returns {number} index of the just collapsed cell
  */
-function collapse(cell) {
+function collapse(wave, cell) {
     // TODO
 }
 
@@ -74,7 +75,8 @@ function execute(width, height, startingValue) {
     const wave = init(width, height, startingValue);
     while(!isFullyCollapsed(wave)){
         const lowestEntropyCell = getLowestEntropy(wave);
-        collapse(lowestEntropyCell);
+        const cellIndex = collapse(wave, lowestEntropyCell);
+        propagate(wave, cellIndex);
     }
     return wave;
 }
