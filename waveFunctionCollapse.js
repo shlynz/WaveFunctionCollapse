@@ -6,7 +6,7 @@
  *      - Get a random cell with with minimal local entropy, put on top of a stack
  * - Collapse:
  *      - Collapse top of stack into one possible state
- *      - Check neighbors, if one of them only has one possibel state, put on top of stack
+ *      - Check neighbours, if one of them only has one possibel state, put on top of stack
  *      - Repeat collapse till stack empty
  * - Check if every cell has been collapsed:
  *      - If not, restart from identifying lowest entropy
@@ -35,17 +35,18 @@ function init(width, height, startingValue) {
  * creates an ordered (by entropy asc) copy of the wave and filters it for every entry with the same entropy as the first index
  * choose a random cell of the filtered result
  * @param {Array<Cell>} wave The wave to search in
- * @returns Reference to an cell
+ * @returns Reference to a cell
  */
 function getLowestEntropy(wave) {
     const waveCopy = wave.slice().sort((a, b) => a.entropy - b.entropy);
-    const lowestEntropy = waveCopy[0].entropy
+    const lowestEntropy = waveCopy[0].entropy;
     const lowestEntropyCell = waveCopy.filter(cell => cell.entropy === lowestEntropy);
     return waveCopy[Math.floor(Math.random()*waveCopy.length)];
 }
 
 /**
  * Chooses one of the possible Tiles for this cell
+ * @param {Array<Cell>} wave The wave to collapse in
  * @param {Cell} cell The cell to collapse
  * @returns {number} index of the just collapsed cell
  */
@@ -55,9 +56,11 @@ function collapse(wave, cell) {
 
 /**
  * Updates all specified cells in regard of the newly observed cell
- * @param {number} indexToUpdate Index to the 
+ * @param {Array<Cell>} wave The wave to propagate in
+ * @param {number} width Width of the wave
+ * @param {number} indexToUpdate Index to the cell which should be updated around
  */
-function propagate(wave, indexToUpdate){
+function propagate(wave, width, indexToUpdate){
     const stack = [indexToUpdate];
     while(stack.length > 0) {
         // TODO
