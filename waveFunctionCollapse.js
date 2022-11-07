@@ -106,9 +106,9 @@ function propagate(wave, width, indexToUpdate){
 function execute(width, height, startingValue) {
     const wave = init(width, height, startingValue);
     while(!isFullyCollapsed(wave)){
-        const lowestEntropyCell = getLowestEntropy(wave);
-        const cellIndex = collapse(wave, lowestEntropyCell);
-        propagate(wave, cellIndex);
+        const lowestEntropyCellIndex = getLowestEntropy(wave);
+        const collapsedCellIndex = collapse(wave, lowestEntropyCellIndex);
+        propagate(wave, width, collapsedCellIndex);
     }
     return wave;
 }
