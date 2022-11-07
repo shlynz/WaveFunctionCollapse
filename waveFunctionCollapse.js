@@ -67,7 +67,7 @@ function propagate(wave, width, indexToUpdate){
     const stack = [indexToUpdate];
     while(stack.length > 0) {
         const indexFromStack = stack.pop();
-        const validNeighbours = wave[indexFromStack][0].valid_neighbours;
+        const validNeighbours = wave[indexFromStack][0].validNeighbours;
         const [up, right, down, left] = [-width, 1, width, -1].map(value => value + indexFromStack);
         if(wave[up] && wave[up].length != 1) {
             wave[up] = wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
@@ -131,16 +131,16 @@ function defineNeighbours(tiles) {
     tiles.forEach(tile => {
         tiles.forEach(potentialNeighbourTile => {
             if(tile.sockets.up === potentialNeighbourTile.sockets.down) {
-                tile.valid_neighbours.up.push(potentialNeighbourTile);
+                tile.validNeighbours.up.push(potentialNeighbourTile);
             }
             if(tile.sockets.right === potentialNeighbourTile.sockets.left) {
-                tile.valid_neighbours.right.push(potentialNeighbourTile);
+                tile.validNeighbours.right.push(potentialNeighbourTile);
             }
             if(tile.sockets.down === potentialNeighbourTile.sockets.up) {
-                tile.valid_neighbours.down.push(potentialNeighbourTile);
+                tile.validNeighbours.down.push(potentialNeighbourTile);
             }
             if(tile.sockets.left === potentialNeighbourTile.sockets.right) {
-                tile.valid_neighbours.left.push(potentialNeighbourTile);
+                tile.validNeighbours.left.push(potentialNeighbourTile);
             }
         })
     })
