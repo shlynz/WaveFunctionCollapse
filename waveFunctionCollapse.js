@@ -35,13 +35,14 @@ function init(width, height, startingValue) {
  * creates an ordered (by entropy asc) copy of the wave and filters it for every entry with the same entropy as the first index
  * choose a random cell of the filtered result
  * @param {Array<Cell>} wave The wave to search in
- * @returns Reference to a cell
+ * @returns {number} index of a cell
  */
 function getLowestEntropy(wave) {
     const waveCopy = wave.slice().sort((a, b) => a.entropy - b.entropy);
     const lowestEntropy = waveCopy[0].entropy;
-    const lowestEntropyCell = waveCopy.filter(cell => cell.entropy === lowestEntropy);
-    return waveCopy[Math.floor(Math.random()*waveCopy.length)];
+    const lowestEntropyCells = waveCopy.filter(cell => cell.entropy === lowestEntropy);
+    const randomLowestEntropyCell = lowestEntropyCells[Math.floor(Math.random()*waveCopy.length)]
+    return wave.findIndex(cell => cell === randomLowestEntropyCell);
 }
 
 /**
