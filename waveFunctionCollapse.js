@@ -66,7 +66,33 @@ function collapse(wave, indexToCollapse) {
 function propagate(wave, width, indexToUpdate){
     const stack = [indexToUpdate];
     while(stack.length > 0) {
-        // TODO
+        const indexFromStack = stack.pop();
+        const validNeighbours = wave[indexFromStack][0].valid_neighbours;
+        const [up, right, down, left] = [-width, 1, width, -1].map(value => value + indexFromStack);
+        if(wave[up] && wave[up].length != 1) {
+            wave[up] = wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
+            if(wave[up].length === 1){
+                propagate(wave, width, up);
+            }
+        }
+        if(wave[right] && wave[right].length != 1) {
+            wave[right] = wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
+            if(wave[right].length === 1){
+                propagate(wave, width, right);
+            }
+        }
+        if(wave[down] && wave[down].length != 1) {
+            wave[down] = wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
+            if(wave[down].length === 1){
+                propagate(wave, width, down);
+            }
+        }
+        if(wave[left] && wave[left].length != 1) {
+            wave[left] = wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
+            if(wave[left].length === 1){
+                propagate(wave, width, left);
+            }
+        }
     }
 }
 
