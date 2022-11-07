@@ -38,10 +38,10 @@ function init(width, height, startingValue) {
  * @returns {number} index of a cell
  */
 function getLowestEntropy(wave) {
-    const waveCopy = wave.slice().sort((a, b) => a.entropy - b.entropy);
-    const lowestEntropy = waveCopy[0].entropy;
-    const lowestEntropyCells = waveCopy.filter(cell => cell.entropy === lowestEntropy);
-    const randomLowestEntropyCell = lowestEntropyCells[Math.floor(Math.random()*waveCopy.length)]
+    const waveCopy = wave.slice().filter(cell => cell.length != 1).sort((a, b) => a.length - b.length);
+    const lowestEntropy = waveCopy[0].length;
+    const lowestEntropyCells = waveCopy.filter(cell => cell.length === lowestEntropy);
+    const randomLowestEntropyCell = lowestEntropyCells[Math.floor(Math.random()*lowestEntropyCells.length)]
     return wave.findIndex(cell => cell === randomLowestEntropyCell);
 }
 
