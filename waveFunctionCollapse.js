@@ -24,73 +24,68 @@
  * @param {Cell} startingValue Cell in superposition of every possible tile
  * @returns {Array<Cell>} Unobserved wave
  */
-function init(width, height, startingValue) {
-    const waveTemplate = new Array(width * height).fill(0);
-    const tiles = defineNeighbours(startingValue);
-    const wave = waveTemplate.map(_ => tiles.slice());
-    return wave;
+const WaveFunctionCollapse = function(width, height, startingValue){
+    this.width = width;
+    this.height = height;
+    const tiles = this.defineNeighbours(startingValue);
+    this.wave = new Array(width * height).fill(0).map(_ => tiles.slice());
 }
 
 /**
  * creates an ordered (by entropy asc) copy of the wave and filters it for every entry with the same entropy as the first index
  * choose a random cell of the filtered result
- * @param {Array<Cell>} wave The wave to search in
  * @returns {number} index of a cell
  */
-function getLowestEntropy(wave) {
-    const waveCopy = wave.slice().filter(cell => cell.length != 1).sort((a, b) => a.length - b.length);
+WaveFunctionCollapse.prototype.getLowestEntropy = function() {
+    const waveCopy = this.wave.slice().filter(cell => cell.length != 1).sort((a, b) => a.length - b.length);
     const lowestEntropy = waveCopy[0].length;
     const lowestEntropyCells = waveCopy.filter(cell => cell.length === lowestEntropy);
     const randomLowestEntropyCell = lowestEntropyCells[Math.floor(Math.random()*lowestEntropyCells.length)]
-    return wave.findIndex(cell => cell === randomLowestEntropyCell);
+    return this.wave.findIndex(cell => cell === randomLowestEntropyCell);
 }
 
 /**
  * Chooses one of the possible Tiles for this cell
- * @param {Array<Cell>} wave The wave to collapse in
- * @param {number} indexToCollapse The index of the cell to collapse
- * @returns {number} Index to the just collapsed cell
  */
-function collapse(wave, indexToCollapse) {
-    const cell = wave[indexToCollapse];
-    wave[indexToCollapse] = [cell[Math.floor(Math.random()*cell.length)]];
-    return indexToCollapse;
+WaveFunctionCollapse.prototype.collapse = function() {
+    const indexToCollapse = this.getLowestEntropy();
+    const cell = this.wave[indexToCollapse];
+    this.wave[indexToCollapse] = [cell[Math.floor(Math.random()*cell.length)]];
+    this.propagate(indexToCollapse);
 }
 
 /**
  * Updates all specified cells in regard of the newly observed cell
- * @param {Array<Cell>} wave The wave to propagate in
- * @param {number} width Width of the wave
  * @param {number} indexToUpdate Index to the cell which should be updated around
  */
-function propagate(wave, width, indexToUpdate){
+WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
     const stack = [indexToUpdate];
     while(stack.length > 0) {
         const indexFromStack = stack.pop();
-        const validNeighbours = wave[indexFromStack][0].validNeighbours;
-        const [up, right, down, left] = [-width, 1, width, -1].map(value => value + indexFromStack);
-        if(wave[up] && wave[up].length != 1) {
-            wave[up] = wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
-            if(wave[up].length === 1){
-                propagate(wave, width, up);
+        const validNeighbours = this.wave[indexFromStack][0].validNeighbours;
+        const [up, right, down, left] = [-this.width, 1, this.width, -1].map(value => value + indexFromStack);
+        if(this.wave[up] && this.wave[up].length != 1) {
+            this.wave[up] = this.wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
+            if(this.wave[up].length === 1){
+                stack.push(up);
             }
         }
-        if(wave[right] && wave[right].length != 1) {
-            wave[right] = wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
-            if(wave[right].length === 1){
-                propagate(wave, width, right);
+        if(this.wave[right] && this.wave[right].length != 1) {
+            this.wave[right] = this.wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
+            if(this.wave[right].length === 1){
+                stack.push(right);
             }
         }
-        if(wave[down] && wave[down].length != 1) {
-            wave[down] = wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
-            if(wave[down].length === 1){
-                propagate(wave, width, down);
+        if(this.wave[down] && this.wave[down].length != 1) {
+            this.wave[down] = this.wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
+            if(this.wave[down].length === 1){
+                stack.push(down);
             }
         }
-        if(wave[left] && wave[left].length != 1) {
-            wave[left] = wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
-            if(wave[left].length === 1){
-                propagate(wave, width, left);
+        if(this.wave[left] && this.wave[left].length != 1) {
+            this.wave[left] = this.wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
+            if(this.wave[left].length === 1){
+                stack.push(left);
             }
         }
     }
@@ -98,28 +93,21 @@ function propagate(wave, width, indexToUpdate){
 
 /**
  * Starts the WFC
- * @param {number} width Width of the wave
- * @param {number} height Height of the wave
- * @param {Cell} startingValue Cell in superposition of every possible tile
  * @returns array of fully collapsed wave
  */
-function execute(width, height, startingValue) {
-    const wave = init(width, height, startingValue);
-    while(!isFullyCollapsed(wave)){
-        const lowestEntropyCellIndex = getLowestEntropy(wave);
-        const collapsedCellIndex = collapse(wave, lowestEntropyCellIndex);
-        propagate(wave, width, collapsedCellIndex);
+WaveFunctionCollapse.prototype.execute = function() {
+    while(!this.isFullyCollapsed()){
+        this.collapse();
     }
-    return wave;
+    return this.wave;
 }
 
 /**
  * Checks if the wave has been fully collapsed
- * @param {Array<Cell>} wave The wave to check
  * @returns boolean is wave collapsed fully?
  */
-function isFullyCollapsed(wave) {
-    return wave.filter(cell => cell.length === 1).length === wave.length;
+WaveFunctionCollapse.prototype.isFullyCollapsed = function() {
+    return this.wave.filter(cell => cell.length === 1).length === this.wave.length;
 }
 
 /**
@@ -127,7 +115,7 @@ function isFullyCollapsed(wave) {
  * @param {Array<Tile>} tiles 
  * @returns {Array<Tile>} tiles
  */
-function defineNeighbours(tiles) {
+WaveFunctionCollapse.prototype.defineNeighbours = function(tiles) {
     tiles.forEach(tile => {
         tiles.forEach(potentialNeighbourTile => {
             if(tile.sockets.up === potentialNeighbourTile.sockets.down) {
@@ -187,3 +175,14 @@ function ValidNeighbours(up, right, down, left) {
     this.down = down;
     this.left = left;
 }
+
+console.log(
+    new WaveFunctionCollapse(50, 20, [
+        new Cell(" ", new Sockets(false, false, false, false)),
+        new Cell("┴", new Sockets(true , true , false, true )),
+        new Cell("├", new Sockets(true , true , true , false)),
+        new Cell("┬", new Sockets(false, true , true , true )),
+        new Cell("┤", new Sockets(true , false, true , true ))
+    ]).execute()
+    .reduce((prev, curr, index) => index % 50 === 0 ? prev + '\n' + curr[0].value : prev + curr[0].value,"")
+)
