@@ -1,3 +1,4 @@
+const Rng = require('./pseudorandom');
 /**
  * Wave Function Collapse
  * - Initialize:
@@ -27,6 +28,7 @@
 const WaveFunctionCollapse = function(width, height, startingValue){
     this.width = width;
     this.height = height;
+    this.rng = new Rng();
     const tiles = this.defineNeighbours(startingValue);
     this.wave = new Array(width * height).fill(0).map(_ => tiles.slice());
 }
@@ -40,7 +42,7 @@ WaveFunctionCollapse.prototype.getLowestEntropy = function() {
     const waveCopy = this.wave.slice().filter(cell => cell.length != 1).sort((a, b) => a.length - b.length);
     const lowestEntropy = waveCopy[0].length;
     const lowestEntropyCells = waveCopy.filter(cell => cell.length === lowestEntropy);
-    const randomLowestEntropyCell = lowestEntropyCells[Math.floor(Math.random()*lowestEntropyCells.length)]
+    const randomLowestEntropyCell = lowestEntropyCells[this.rng.next(lowestEntropyCells.length)]
     return this.wave.findIndex(cell => cell === randomLowestEntropyCell);
 }
 
@@ -50,7 +52,7 @@ WaveFunctionCollapse.prototype.getLowestEntropy = function() {
 WaveFunctionCollapse.prototype.collapse = function() {
     const indexToCollapse = this.getLowestEntropy();
     const cell = this.wave[indexToCollapse];
-    this.wave[indexToCollapse] = [cell[Math.floor(Math.random()*cell.length)]];
+    this.wave[indexToCollapse] = [cell[this.rng.next(cell.length)]];
     this.propagate(indexToCollapse);
 }
 
@@ -95,7 +97,10 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
  * Starts the WFC
  * @returns array of fully collapsed wave
  */
-WaveFunctionCollapse.prototype.execute = function() {
+WaveFunctionCollapse.prototype.execute = function(seed) {
+    if (seed) {
+        this.rng.setSeed(seed);
+    }
     while(!this.isFullyCollapsed()){
         this.collapse();
     }
