@@ -29,8 +29,8 @@ const WaveFunctionCollapse = function(width, height, startingValue){
     this.width = width;
     this.height = height;
     this.rng = new Rng();
-    const tiles = this.defineNeighbours(startingValue);
-    this.wave = new Array(width * height).fill(0).map(_ => tiles.slice());
+    this.tiles = this.defineNeighbours(startingValue);
+    this.restart();
 }
 
 /**
@@ -66,28 +66,45 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
         const indexFromStack = stack.pop();
         const validNeighbours = this.wave[indexFromStack][0].validNeighbours;
         const [up, right, down, left] = [-this.width, 1, this.width, -1].map(value => value + indexFromStack);
-        if(this.wave[up] && this.wave[up].length != 1) {
-            this.wave[up] = this.wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
-            if(this.wave[up].length === 1){
-                stack.push(up);
+        // TODO: HOLY SHIT IS THIS UGLY
+        if(this.wave[up]){
+            if(this.wave[up].isCollapsed && this.wave[up][0].sockets.down != this.wave[indexFromStack][0].sockets.up){
+                return this.restart();
+            } else if(this.wave[up].length != 1) {
+                this.wave[up] = this.wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
+                if(this.wave[up].length === 1){
+                    stack.push(up);
+                }
             }
         }
-        if(this.wave[right] && this.wave[right].length != 1) {
-            this.wave[right] = this.wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
-            if(this.wave[right].length === 1){
-                stack.push(right);
+        if(this.wave[right]){
+            if(this.wave[right].isCollapsed && this.wave[right][0].sockets.left != this.wave[indexFromStack][0].sockets.right){
+                return this.restart();
+            } else if(this.wave[right].length != 1) {
+                this.wave[right] = this.wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
+                if(this.wave[right].length === 1){
+                    stack.push(right);
+                }
             }
         }
-        if(this.wave[down] && this.wave[down].length != 1) {
-            this.wave[down] = this.wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
-            if(this.wave[down].length === 1){
-                stack.push(down);
+        if(this.wave[down]){
+            if(this.wave[down].isCollapsed && this.wave[down][0].sockets.up != this.wave[indexFromStack][0].sockets.down){
+                return this.restart();
+            } else if(this.wave[down].length != 1) {
+                this.wave[down] = this.wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
+                if(this.wave[down].length === 1){
+                    stack.push(down);
+                }
             }
         }
-        if(this.wave[left] && this.wave[left].length != 1) {
-            this.wave[left] = this.wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
-            if(this.wave[left].length === 1){
-                stack.push(left);
+        if(this.wave[left]){
+            if(this.wave[left].isCollapsed && this.wave[left][0].sockets.right != this.wave[indexFromStack][0].sockets.left){
+                return this.restart();
+            } else if(this.wave[left].length != 1) {
+                this.wave[left] = this.wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
+                if(this.wave[left].length === 1){
+                    stack.push(left);
+                }
             }
         }
     }
@@ -112,7 +129,10 @@ WaveFunctionCollapse.prototype.execute = function(seed) {
  * @returns boolean is wave collapsed fully?
  */
 WaveFunctionCollapse.prototype.isFullyCollapsed = function() {
-    return this.wave.filter(cell => cell.length === 1).length === this.wave.length;
+    const collapsedOrLessCells = this.wave.filter(cell => cell.length <= 1);
+    const invalidCells = collapsedOrLessCells.filter(cell => cell.length < 1);
+    if(invalidCells.length > 0) this.restart();
+    return collapsedOrLessCells.length === this.wave.length;
 }
 
 /**
@@ -138,6 +158,11 @@ WaveFunctionCollapse.prototype.defineNeighbours = function(tiles) {
         })
     })
     return tiles;
+}
+
+WaveFunctionCollapse.prototype.restart = function(){
+    console.log('restarting...')
+    this.wave = new Array(this.width * this.height).fill(0).map(_ => this.tiles.slice());
 }
 
 module.exports = WaveFunctionCollapse;
