@@ -68,7 +68,7 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
         const [up, right, down, left] = [-this.width, 1, this.width, -1].map(value => value + indexFromStack);
         // TODO: HOLY SHIT IS THIS UGLY
         if(this.wave[up]){
-            if(this.wave[up].isCollapsed && this.wave[up][0].sockets.down != this.wave[indexFromStack][0].sockets.up){
+            if(this.wave[up].length === 1 && this.wave[up][0].sockets.down != this.wave[indexFromStack][0].sockets.up){
                 return this.restart();
             } else if(this.wave[up].length != 1) {
                 this.wave[up] = this.wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
@@ -78,7 +78,7 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
             }
         }
         if(this.wave[right]){
-            if(this.wave[right].isCollapsed && this.wave[right][0].sockets.left != this.wave[indexFromStack][0].sockets.right){
+            if(this.wave[right].length === 1 && this.wave[right][0].sockets.left != this.wave[indexFromStack][0].sockets.right){
                 return this.restart();
             } else if(this.wave[right].length != 1) {
                 this.wave[right] = this.wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
@@ -88,7 +88,7 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
             }
         }
         if(this.wave[down]){
-            if(this.wave[down].isCollapsed && this.wave[down][0].sockets.up != this.wave[indexFromStack][0].sockets.down){
+            if(this.wave[down].length === 1 && this.wave[down][0].sockets.up != this.wave[indexFromStack][0].sockets.down){
                 return this.restart();
             } else if(this.wave[down].length != 1) {
                 this.wave[down] = this.wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
@@ -98,7 +98,7 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
             }
         }
         if(this.wave[left]){
-            if(this.wave[left].isCollapsed && this.wave[left][0].sockets.right != this.wave[indexFromStack][0].sockets.left){
+            if(this.wave[left].length === 1 && this.wave[left][0].sockets.right != this.wave[indexFromStack][0].sockets.left){
                 return this.restart();
             } else if(this.wave[left].length != 1) {
                 this.wave[left] = this.wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
