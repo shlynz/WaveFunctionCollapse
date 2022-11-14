@@ -66,44 +66,22 @@ WaveFunctionCollapse.prototype.propagate = function(indexToUpdate){
         const indexFromStack = stack.pop();
         const validNeighbours = this.wave[indexFromStack][0].validNeighbours;
         const [up, right, down, left] = [-this.width, 1, this.width, -1].map(value => value + indexFromStack);
-        // TODO: HOLY SHIT IS THIS UGLY
-        if(this.wave[up]){
-            if(this.wave[up].length === 1 && this.wave[up][0].sockets.down != this.wave[indexFromStack][0].sockets.up){
-                return this.restart();
-            } else if(this.wave[up].length != 1) {
-                this.wave[up] = this.wave[up].filter(neighbour => validNeighbours.up.indexOf(neighbour) > -1);
-                if(this.wave[up].length === 1){
-                    stack.push(up);
-                }
-            }
-        }
-        if(this.wave[right]){
-            if(this.wave[right].length === 1 && this.wave[right][0].sockets.left != this.wave[indexFromStack][0].sockets.right){
-                return this.restart();
-            } else if(this.wave[right].length != 1) {
-                this.wave[right] = this.wave[right].filter(neighbour => validNeighbours.right.indexOf(neighbour) > -1);
-                if(this.wave[right].length === 1){
-                    stack.push(right);
-                }
-            }
-        }
-        if(this.wave[down]){
-            if(this.wave[down].length === 1 && this.wave[down][0].sockets.up != this.wave[indexFromStack][0].sockets.down){
-                return this.restart();
-            } else if(this.wave[down].length != 1) {
-                this.wave[down] = this.wave[down].filter(neighbour => validNeighbours.down.indexOf(neighbour) > -1);
-                if(this.wave[down].length === 1){
-                    stack.push(down);
-                }
-            }
-        }
-        if(this.wave[left]){
-            if(this.wave[left].length === 1 && this.wave[left][0].sockets.right != this.wave[indexFromStack][0].sockets.left){
-                return this.restart();
-            } else if(this.wave[left].length != 1) {
-                this.wave[left] = this.wave[left].filter(neighbour => validNeighbours.left.indexOf(neighbour) > -1);
-                if(this.wave[left].length === 1){
-                    stack.push(left);
+        // TODO: Still ugly, but better
+        const directions = [
+            {offsetX:0, offsetY:-1, thisSocket:'up', otherSocket:'down'},
+            {offsetX:1, offsetY:0, thisSocket:'right', otherSocket:'left'},
+            {offsetX:0, offsetY:1, thisSocket:'down', otherSocket:'up'},
+            {offsetX:-1, offsetY:0, thisSocket:'left', otherSocket:'right'}];
+        for(const direction of directions){
+            const offset = indexFromStack + direction.offsetX + (this.width * direction.offsetY);
+            if(this.wave[offset]){
+                if(this.wave[offset].length === 1 && this.wave[offset][0].sockets[direction.otherSocket] != this.wave[indexFromStack][0].sockets[direction.thisSocket]){
+                    return this.restart();
+                } else if(this.wave[offset].length != 1){
+                    this.wave[offset] = this.wave[offset].filter(neighbour => validNeighbours[direction.thisSocket].indexOf(neighbour) > -1);
+                    if(this.wave[offset].length === 1){
+                        stack.push(offset);
+                    }
                 }
             }
         }
