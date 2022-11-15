@@ -1,28 +1,14 @@
 /**
- * Valid neighbours for a 2D tile
- * @param {Array<Cell>} up An array of allowed cells at this edge
- * @param {Array<Cell>} right An array of allowed cells at this edge
- * @param {Array<Cell>} down An array of allowed cells at this edge
- * @param {Array<Cell>} left An array of allowed cells at this edge
+ * Represents a cell of tiles, or one collapsed and thus resolved tile
+ * @see Tile
+ * @param {Array<Tile>|number} tiles all available or amount of all available tiles
+ * @param {number} amountAdjacentCells amount of immediately adjacent cells
  */
- const ValidNeighbours = function(up, right, down, left) {
-    this.up = up;
-    this.right = right;
-    this.down = down;
-    this.left = left;
-}
-
-/**
- * Required objects for the WFC
- *
- * Holds the value, sockets and valid neighbours for a specific tile
- * @param {*} value Value for this specific tile
- * @param {Sockets} sockets {@link Sockets} for this specific tile
- */
-const Cell = function Cell(value, sockets){
-    this.value = value;
-    this.sockets = sockets;
-    this.validNeighbours = new ValidNeighbours([],[],[],[]);
+const Cell = function Cell(tiles, amountAdjacentCells){
+    this.value = null;
+    this.options = Array.isArray(tiles) ? tiles : new Array(tiles).map((_,index) => index);
+    this.validAdjacent = new Array(adjacentCells).fill(this.options.slice());
+    this.entropy = Array.isArray(tiles) ? tiles.reduce((total, curr) => total + curr.entropy) : -Infinity;
 }
 
 module.exports = Cell;
