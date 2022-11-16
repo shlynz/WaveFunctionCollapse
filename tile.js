@@ -7,9 +7,9 @@
 const Tile = function(value, sockets, weight = 1){
     this.value = value;
     this.sockets = sockets;
-    this.weight = weight;
-    this.validAdjacent = [];
-    this.entropy = weight * Math.log2(weight);
+    this.weight = weight / 10;
+    this.validAdjacent = Array.from(Array(sockets.length), () => new Array());
+    this.entropy = - this.weight * Math.log2(this.weight);
 }
 
 module.exports = Tile;
