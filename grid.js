@@ -72,4 +72,82 @@ Grid.prototype.getIndexFromCoordinates = function(x, y){
     return x + (y * this.dimensions.x);
 }
 
+/**
+ * Performs the specified action for each element in the grid.
+ * 
+ * Iterates left to right, top to bottom.
+ * @param {forEachCallback} callbackFn A function that accepts up to four arguments. forEach calls the callbackFn one time for each element in the grid.
+ */
+Grid.prototype.forEach = function(callbackFn){
+    this.items.forEach((value, index) => {
+        const {x, y} = this.getCoordinatesFromIndex(index);
+        callbackFn(value, x, y, this);
+    });
+}
+
+/**
+ * Performs the specified action for each element in the grid.
+ * 
+ * Iterates left to right, top to bottom.
+ * @param {mapCallback} callbackFn A function that accepts up to four arguments. mapSelf calls the callbackFn one time for each element in the grid.
+ * @returns Mutated copy of the grid
+ */
+Grid.prototype.map = function(callbackFn){
+    const newGrid =  this.items.map((value, index) => {
+        const {x, y} = this.getCoordinatesFromIndex(index);
+        return callbackFn(value, x, y, this);
+    });
+    return Grid.of(this.dimensions.x, this.dimensions.y, newGrid);
+}
+
+/**
+ * WARNING!
+ * This will replace the entire grid with the newly generated one from this function. Use with caution.
+ * 
+ * Performs the specified action for each element in the grid.
+ * @param {mapCallback} callbackFn A function that accepts up to four arguments. mapSelf calls the callbackFn one time for each element in the grid.
+ */
+Grid.prototype.mapSelf = function(callbackFn){
+    this.items = this.items.map(callbackFn);
+}
+
+Grid.prototype.reduce = function(callbackFn, startingValue){
+    return this.items.reduce((previousValue, currentValue, currentIndex) => {
+        const {x, y} = this.getCoordinatesFromIndex(currentIndex);
+        return callbackFn(previousValue, currentValue, x, y);
+    }, startingValue);
+}
+
+/**
+ * @callback forEachCallback
+ * @param {*} value The item in the grid
+ * @param {number} xCoordinate The x coordinate
+ * @param {number} yCoordinate The y coordinate
+ * @param {Grid} grid The calling object
+ */
+
+/**
+ * @callback mapCallback
+ * @param {*} value The item in the grid
+ * @param {number} xCoordinate The x coordinate
+ * @param {number} yCoordinate The y coordinate
+ * @param {Grid} grid The calling object
+ */
+
+/**
+ * Generates a new grid based on an array and two dimensions
+ * @param {*} x The width of the grid
+ * @param {*} y The height of the grid
+ * @param {*} arrayLike An array to base the grid on
+ * @returns Newly generated grid
+ */
+Grid.of = function(x, y, arrayLike){
+    const grid = new Grid(x, y);
+    arrayLike.forEach((value, index) => {
+        const {x, y} = this.getCoordinatesFromIndex(index);
+        grid.set(x, y, value);
+    })
+    return grid;
+}
+
 module.exports = Grid;
